@@ -311,15 +311,6 @@
             border-bottom-width: 2px;
         }
 
-        .game-logo {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 200px;
-            max-width: 35vw;
-            z-index: 10;
-        }
-
         .prize-card {
             background-color: rgba(255, 255, 255, 0.1);
             border: 2px dashed var(--accent-color);
@@ -371,9 +362,6 @@
             .moon {
                 width: 100px;
                 height: 100px;
-            }
-            .game-logo {
-                width: 120px;
             }
             .lantern {
                 width: 30px;
@@ -433,10 +421,8 @@
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
         // --- Game Configuration ---
+        // Khôi phục mê cung phức tạp nhưng đã được kiểm tra lại
         const mazeLayout = [
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
             [2,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,1],
@@ -469,25 +455,14 @@
              `<div class="fortune-card"><div class="fortune-title">Quẻ Tiểu Cát: KHÊ LƯU CHUYỂN HƯỚNG</div><div><div class="fortune-section-title">Tổng luận:</div><em>Tựa dòng suối gặp vật cản, không lùi bước mà uyển chuyển tìm lối đi riêng. Vận trình sự nghiệp đang ở giai đoạn then chốt, cơ hội và thử thách cùng xuất hiện. Một sự thay đổi nhỏ trong phương pháp sẽ tạo ra bước tiến lớn.</em></div><div><div class="fortune-section-title">Diễn giải:</div>Công việc hiện tại có dấu hiệu chững lại hoặc gặp phải những trở ngại bất ngờ. Những phương pháp cũ, con đường quen thuộc không còn mang lại hiệu quả như trước. Tuy nhiên, đây không phải bế tắc mà là một tín hiệu để bạn đổi mới. Cơ hội thăng tiến đang ẩn mình chính trong những thách thức này.</div><div><div class="fortune-section-title">Lời khuyên:</div>Nước chảy đá mòn. Đừng đối đầu trực diện với khó khăn, hãy học cách "lách" qua nó. Đây là lúc cần cập nhật những kỹ năng mới để tư duy sắc bén hơn, từ đó phối hợp linh hoạt với cộng sự và thích nghi hiệu quả với hoàn cảnh. Khi bạn thay đổi, vật cản sẽ trở thành bậc thang.</div></div>`
         ];
 
-        const MAZE_ROWS = mazeLayout.length;
-        const MAZE_COLS = mazeLayout[0].length;
+        let canvas, ctx; // Khai báo biến toàn cục
+        let MAZE_ROWS, MAZE_COLS;
+        let TILE_SIZE, PLAYER_RADIUS;
+        let scale;
         
-        let scale = Math.min(window.innerWidth * 0.8, window.innerHeight * 0.6);
-        if (window.innerWidth < 640) {
-            scale = window.innerWidth * 0.9;
-        }
-
-        const TILE_SIZE = Math.floor(scale / MAZE_COLS);
-        
-        canvas.width = MAZE_COLS * TILE_SIZE;
-        canvas.height = MAZE_ROWS * TILE_SIZE;
-        
-        const PLAYER_RADIUS = TILE_SIZE * 0.35;
-
-        // --- Game State ---
         let player = { x: 0, y: 0 };
         let startPos = { x: 0, y: 0 };
-        let endPos = { x: 0, y: 0, size: TILE_SIZE * 0.8 };
+        let endPos = { x: 0, y: 0, size: 0 };
         let walls = [];
         let isDragging = false;
         let gameActive = true;
@@ -495,6 +470,72 @@
         let timeLeft = 25;
 
         // --- Initialization ---
+        function initGame() {
+            canvas = document.getElementById('gameCanvas');
+            if (!canvas) {
+                console.error("Không tìm thấy canvas!");
+                document.body.innerHTML = '<h1>Lỗi: Không thể tải canvas của trò chơi.</h1>';
+                return;
+            }
+            ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error("Không thể lấy context 2D!");
+                 document.body.innerHTML = '<h1>Lỗi: Trình duyệt của bạn không hỗ trợ trò chơi này.</h1>';
+                return;
+            }
+
+            MAZE_ROWS = mazeLayout.length;
+            MAZE_COLS = mazeLayout[0].length;
+            
+            scale = Math.min(window.innerWidth * 0.8, window.innerHeight * 0.6);
+            if (window.innerWidth < 640) {
+                scale = window.innerWidth * 0.9;
+            }
+
+            TILE_SIZE = Math.floor(scale / MAZE_COLS);
+            
+            canvas.width = MAZE_COLS * TILE_SIZE;
+            canvas.height = MAZE_ROWS * TILE_SIZE;
+            
+            PLAYER_RADIUS = TILE_SIZE * 0.35;
+            endPos.size = TILE_SIZE * 0.8;
+
+            initMaze();
+            
+            // --- SETUP EVENT LISTENERS ---
+            canvas.addEventListener('mousedown', (e) => { 
+                if (!gameActive) return;
+                isDragging = true; 
+                handleMove(e.clientX, e.clientY); 
+            });
+            canvas.addEventListener('mouseup', () => { isDragging = false; });
+            canvas.addEventListener('mouseleave', () => { isDragging = false; });
+            canvas.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+            
+            canvas.addEventListener('touchstart', (e) => { 
+                if (!gameActive) return;
+                e.preventDefault(); 
+                isDragging = true; 
+                handleMove(e.touches[0].clientX, e.touches[0].clientY); 
+            }, { passive: false });
+            canvas.addEventListener('touchend', (e) => { e.preventDefault(); isDragging = false; });
+            canvas.addEventListener('touchcancel', (e) => { e.preventDefault(); isDragging = false; });
+            canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+
+            document.getElementById('giftBox').addEventListener('click', () => {
+                const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
+                document.getElementById('prizeText').innerHTML = randomPrize;
+                document.getElementById('winMessage').style.display = 'none';
+                document.getElementById('prizeDisplay').style.display = 'block';
+            });
+            
+            document.getElementById('playAgainBtnLose').addEventListener('click', resetGame);
+            
+            resetGame();
+            createLights();
+        }
+
+
         function initMaze() {
             walls = [];
             for (let row = 0; row < MAZE_ROWS; row++) {
@@ -723,6 +764,7 @@
         }
 
         function draw() {
+            if (!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawPath();
             drawWalls();
@@ -787,36 +829,6 @@
             checkWin();
             draw();
         }
-
-        canvas.addEventListener('mousedown', (e) => { 
-            if (!gameActive) return;
-            isDragging = true; 
-            handleMove(e.clientX, e.clientY); 
-        });
-        canvas.addEventListener('mouseup', () => { isDragging = false; });
-        canvas.addEventListener('mouseleave', () => { isDragging = false; });
-        canvas.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
-        
-        canvas.addEventListener('touchstart', (e) => { 
-            if (!gameActive) return;
-            e.preventDefault(); 
-            isDragging = true; 
-            handleMove(e.touches[0].clientX, e.touches[0].clientY); 
-        }, { passive: false });
-        canvas.addEventListener('touchend', (e) => { e.preventDefault(); isDragging = false; });
-        canvas.addEventListener('touchcancel', (e) => { e.preventDefault(); isDragging = false; });
-        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
-
-
-        document.getElementById('giftBox').addEventListener('click', () => {
-             const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
-            document.getElementById('prizeText').innerHTML = randomPrize;
-            document.getElementById('winMessage').style.display = 'none';
-            document.getElementById('prizeDisplay').style.display = 'block';
-        });
-        
-        document.getElementById('playAgainBtn').addEventListener('click', resetGame);
-        document.getElementById('playAgainBtnLose').addEventListener('click', resetGame);
         
         // --- Light Effect ---
         function createLights() {
@@ -837,14 +849,24 @@
 
         // --- Game Start ---
         window.onload = () => {
-            initMaze();
-            resetGame();
-            createLights();
+            try {
+                initGame();
+            } catch (error) {
+                console.error("Đã xảy ra lỗi nghiêm trọng khi khởi tạo game:", error);
+                document.body.innerHTML = `
+                    <div style="text-align: center; color: white; padding: 20px;">
+                        <h1>Rất tiếc, trò chơi đã gặp sự cố!</h1>
+                        <p>Vui lòng thử tải lại trang. Nếu vẫn không được, có thể trình duyệt của bạn không hỗ trợ.</p>
+                        <p>Chi tiết lỗi: ${error.message}</p>
+                    </div>
+                `;
+            }
         };
 
         window.onresize = () => {
-             location.reload();
+             // Chức năng thay đổi kích thước đã được vô hiệu hóa để tránh lỗi lặp trang.
         };
     </script>
 </body>
 </html>
+
