@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò chơi Trung Thu - Mê Cung Thỏ Ngọc</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #E53935; /* Brighter Red */
+            --secondary-color: #FFB300; /* Amber */
+            --accent-color: #FDD835; /* Sunny Yellow */
+            --bg-color-start: #c42d2a;
+            --bg-color-end: #e65c00;
+            --wall-color: #F5F5DC; /* Ivory - Màu trắng ngà */
+            --path-color: rgba(255, 255, 255, 0.2); /* White transparent */
+            --light-color: #FFFFFF;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Quicksand', sans-serif;
+            color: var(--light-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .background-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle, var(--bg-color-start) 0%, var(--bg-color-end) 100%);
+        }
+
+        .cloud {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+            border-radius: 50%;
+            animation: moveCloud 20s linear infinite alternate;
+        }
+
+        .cloud.c1 { width: 400px; height: 400px; top: 10%; left: -10%; animation-duration: 25s; }
+        .cloud.c2 { width: 500px; height: 500px; top: 50%; left: 20%; animation-duration: 30s; }
+        .cloud.c3 { width: 300px; height: 300px; top: 20%; right: -5%; animation-duration: 20s; }
+        
+        @keyframes moveCloud {
+            from { transform: translateX(0) translateY(0) scale(1); }
+            to { transform: translateX(50px) translateY(30px) scale(1.1); }
+        }
+        
+        .lantern-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+        }
+
+        .lantern {
+            position: absolute;
+            width: 50px;
+            height: 70px;
+            background: radial-gradient(circle at 50% 40%, #fffae1, #f0c565);
+            border-radius: 45%;
+            box-shadow: 0 0 25px #f0c565, 0 0 40px #f0c565 inset;
+            animation: sway 5s ease-in-out infinite alternate;
+        }
+
+        .lantern::before, .lantern::after {
+            content: '';
+            position: absolute;
+            background: #a52a2a;
+        }
+
+        .lantern::before { /* top cap */
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 10px;
+            border-radius: 5px;
+        }
+
+        .lantern::after { /* bottom tassel */
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-2px);
+            width: 4px;
+            height: 30px;
+            background: linear-gradient(to bottom, #d32f2f, #ffefa1);
+        }
+
+        .lantern.l1 { top: 5%; left: 10%; animation-duration: 6s; transform-origin: top center; }
+        .lantern.l2 { top: 15%; right: 10%; animation-duration: 4s; transform-origin: top center; }
+        .lantern.l3 { top: 10%; left: 45%; animation-duration: 5.5s; transform-origin: top center; }
+
+        @keyframes sway {
+            from { transform: rotate(-7deg); }
+            to { transform: rotate(7deg); }
+        }
+
+
+        .moon {
+            position: absolute;
+            top: 10%;
+            right: 15%;
+            width: 150px;
+            height: 150px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            box-shadow: 0 0 50px var(--accent-color), 0 0 100px var(--accent-color);
+        }
+
+        .lights-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+        }
+
+        .light {
+            position: absolute;
+            bottom: -50px;
+            width: 5px;
+            height: 5px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            animation: rise 10s infinite ease-in;
+            opacity: 0;
+        }
+
+        @keyframes rise {
+            0% { transform: translateY(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh); opacity: 0; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0,0,0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+            max-width: 95vw;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--light-color);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        #timer-container {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        canvas {
+            background-color: transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            max-width: 100%;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, var(--primary-color), #e74c3c);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px var(--accent-color);
+            border: 2px solid var(--accent-color);
+            color: white;
+            max-width: 600px;
+            width: 90%;
+            animation: fadeIn 0.5s ease-out;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-content h2 {
+            margin-top: 0;
+            color: var(--light-color);
+            font-size: 2rem;
+        }
+        
+        #winMessage p {
+             font-size: 1.2rem;
+             line-height: 1.5;
+        }
+
+        #fortuneText {
+            margin-bottom: 20px;
+        }
+
+        /* New Fortune Card Design */
+        .fortune-card {
+            background: #fffaf0; /* Màu giấy cổ */
+            color: #5a3a22; /* Màu chữ nâu sẫm */
+            border: 2px solid #d4af37; /* Viền vàng */
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            line-height: 1.7;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .fortune-title {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #b22222; /* Màu đỏ đô */
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .fortune-section-title {
+            font-weight: bold;
+            color: #8b4513; /* Nâu yên ngựa */
+            margin-top: 10px;
+        }
+        .fortune-card em {
+            color: #d2691e; /* Màu socola */
+            font-style: italic;
+        }
+        .fortune-card strong {
+             color: inherit;
+        }
+
+        @keyframes fadeIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        #giftBox {
+            font-size: 5rem;
+            cursor: pointer;
+            animation: pulse 1s infinite;
+            display: inline-block;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        #playAgainBtn, #playAgainBtnLose {
+            background-color: var(--accent-color);
+            color: #4a1c00;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s;
+            border-bottom: 4px solid #b36b00;
+        }
+
+        #playAgainBtn:hover, #playAgainBtnLose:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        #playAgainBtn:active, #playAgainBtnLose:active {
+            transform: translateY(1px);
+            border-bottom-width: 2px;
+        }
+
+        .game-logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 200px;
+            max-width: 35vw;
+            z-index: 10;
+        }
+
+        .prize-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px dashed var(--accent-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .prize-card.moon-cake .icon {
+            font-size: 3rem;
+        }
+        .prize-card.moon-cake .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        
+        .prize-card.voucher {
+            background-color: #fff3e0;
+            color: #5d4037;
+        }
+        .prize-card.voucher .header {
+            font-size: 1rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        .prize-card.voucher .points {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #c0392b;
+            margin: 10px 0;
+        }
+         .prize-card.voucher .footer {
+            font-size: 0.9rem;
+            color: #795548;
+        }
+
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .container {
+                padding: 15px;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+            .moon {
+                width: 100px;
+                height: 100px;
+            }
+            .game-logo {
+                width: 120px;
+            }
+            .lantern {
+                width: 30px;
+                height: 45px;
+            }
+            .lantern::before { width: 35px; height: 6px;}
+            .lantern::after { height: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAJEAQMAAAAA9GMpAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAGUExURQAAAB05/v///720f4sAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAfGSURBVHja7d1/bBRVFgfwh7fIqBC0JtA4pA0VBFMpiXpSRUUFQVtrQfEgUFG0tqDRoLVIoGCiFUwrpW3pSFQv1YgWNdFWEaoECiJaK1oT8SAE9aK+UAtWNAJq5b83czOb3Z3Z3Z2d/b7vZ3fnzOzcO7Pz7M7O3pYgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAÍ" alt="Company Logo" class="game-logo">
+    <div class="background-effects">
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+        <div class="cloud c3"></div>
+        <div class="moon"></div>
+        <div class="lantern-container">
+            <div class="lantern l1"></div>
+            <div class="lantern l2"></div>
+            <div class="lantern l3"></div>
+        </div>
+        <div class="lights-container"></div>
+    </div>
+
+    <div class="container">
+        <h1>Thoát Khỏi Mê Cung</h1>
+        <p>Kéo chú Thỏ Ngọc tìm đường đến ăn bánh Trung Thu. Cẩn thận đừng chạm vào tường nhé!</p>
+        <div id="timer-container">
+            Thời gian: <span id="timer">25</span> giây
+        </div>
+        <canvas id="gameCanvas"></canvas>
+    </div>
+    
+    <!-- Win Modal -->
+    <div id="winModal" class="modal">
+        <div class="modal-content">
+            <div id="winMessage">
+                 <div id="fortuneText"></div>
+                 <div id="giftBox">🎁</div>
+                 <p>Bấm vào hộp quà để nhận thưởng!</p>
+            </div>
+            <div id="prizeDisplay" style="display: none;">
+                <h2>Phần thưởng của bạn là:</h2>
+                <div id="prizeText"></div>
+                <button id="playAgainBtn" onclick="resetGame()">Chơi lại</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lose Modal -->
+    <div id="loseModal" class="modal">
+        <div class="modal-content">
+            <h2 id="loseMessageText">Thua rồi!</h2>
+            <p>Đừng nản lòng, thử lại nhé!</p>
+            <button id="playAgainBtnLose">Chơi lại</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // --- Game Configuration ---
+        const mazeLayout = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [2,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,1],
+            [1,0,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1],
+            [1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
+            [1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+            [1,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,1],
+            [1,0,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1],
+            [1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,1,0,1],
+            [1,1,1,0,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1],
+            [1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,0,1],
+            [1,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,1],
+            [1,0,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1],
+            [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,3],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+        // 1: wall, 0: path, 2: start, 3: end
+        
+        const prizes = [
+            `<div class="prize-card moon-cake"><div class="icon">🥮</div><div class="title">1 Cái Bánh Trung Thu</div></div>`,
+            `<div class="prize-card voucher"><div class="header">PHIẾU ĐIỂM THƯỞNG</div><div class="points">20</div><div class="footer">Base Rewards</div></div>`,
+            `<div class="prize-card voucher"><div class="header">PHIẾU ĐIỂM THƯỞNG</div><div class="points">10</div><div class="footer">Base Rewards</div></div>`,
+            `<div class="prize-card voucher"><div class="header">PHIẾU ĐIỂM THƯỞNG</div><div class="points">50</div><div class="footer">Base Rewards</div></div>`
+        ];
+        
+        const fortunes = [
+             `<div class="fortune-card"><div class="fortune-title">Quẻ Đại Cát: LONG VÂN TẾ HỘI</div><div><div class="fortune-section-title">Tổng luận:</div><em>Tựa rồng thiêng gặp được mây lành để vươn mình ra biển lớn. Thời cơ của bạn đã đến, vận hội hanh thông, con đường công danh sự nghiệp trước mắt rộng mở thênh thang, hứa hẹn những bước đột phá phi thường.</em></div><div><div class="fortune-section-title">Diễn giải:</div>Giai đoạn khó khăn, thử thách đã ở lại phía sau. Bao tâm huyết, nỗ lực âm thầm của bạn nay đã đến ngày đơm hoa kết trái. Quý nhân sắp xuất hiện, mang đến cơ hội vàng son hoặc sự trợ giúp đắc lực. Tài năng của bạn sẽ được nhìn nhận đúng lúc, đúng chỗ, tạo nên tiếng vang lớn.</div><div><div class="fortune-section-title">Lời khuyên:</div>Vận may đã tới, nhưng thành công không tự tìm đến. Hãy mạnh dạn thoát khỏi lối mòn, chủ động cải tiến phương thức làm việc để tạo nên hiệu quả vượt trội. Tin vào năng lực bản thân, đồng thời không ngừng trau dồi kỹ năng mềm, bởi đó chính là bản lĩnh giúp bạn vững tay chèo trước mọi con sóng bất ngờ trên hành trình chinh phục đỉnh cao.</div><div><div class="fortune-section-title">Kết:</div>Mọi sự viên mãn, danh lợi song toàn. Xin chúc mừng!</div></div>`,
+             `<div class="fortune-card"><div class="fortune-title">Quẻ Trung Cát: KIM HOA SƠ NỞ</div><div><div class="fortune-section-title">Tổng luận:</div><em>Như nụ hoa vàng sau đêm dài nay hé nở đón ánh dương. Vận may nhỏ đang đến, báo hiệu một khởi đầu mới thuận lợi và tốt lành. Những khúc mắc, trì trệ trước đây bắt đầu có hướng giải quyết.</em></div><div><div class="fortune-section-title">Diễn giải:</div>Một dự án nhỏ bắt đầu có tín hiệu tích cực, một ý tưởng mới được ghi nhận, hoặc một mối quan hệ công việc được cải thiện. Đây chưa phải là thành công lớn, nhưng là ánh sáng le lói cuối đường hầm, mang lại niềm tin và động lực. Giai đoạn này là để tích lũy và xây dựng nền tảng.</div><div><div class="fortune-section-title">Lời khuyên:</div>Đừng vội vàng mong gặt hái thành quả lớn. Hãy xem đây là cơ hội để bồi đắp cho bản thân. Việc chủ động cập nhật những kỹ năng mới, dù là nhỏ nhất, chính là "nguồn dinh dưỡng" cho nụ hoa sự nghiệp. Nhờ đó, bạn có thể phối hợp linh hoạt khi có cơ hội làm việc nhóm và thích nghi hiệu quả với những yêu cầu sắp tới. Sự chuẩn bị kỹ lưỡng hôm nay là nền tảng vững chắc cho thành công rực rỡ ngày mai.</div></div>`,
+             `<div class="fortune-card"><div class="fortune-title">Quẻ Tiểu Cát: KHÊ LƯU CHUYỂN HƯỚNG</div><div><div class="fortune-section-title">Tổng luận:</div><em>Tựa dòng suối gặp vật cản, không lùi bước mà uyển chuyển tìm lối đi riêng. Vận trình sự nghiệp đang ở giai đoạn then chốt, cơ hội và thử thách cùng xuất hiện. Một sự thay đổi nhỏ trong phương pháp sẽ tạo ra bước tiến lớn.</em></div><div><div class="fortune-section-title">Diễn giải:</div>Công việc hiện tại có dấu hiệu chững lại hoặc gặp phải những trở ngại bất ngờ. Những phương pháp cũ, con đường quen thuộc không còn mang lại hiệu quả như trước. Tuy nhiên, đây không phải bế tắc mà là một tín hiệu để bạn đổi mới. Cơ hội thăng tiến đang ẩn mình chính trong những thách thức này.</div><div><div class="fortune-section-title">Lời khuyên:</div>Nước chảy đá mòn. Đừng đối đầu trực diện với khó khăn, hãy học cách "lách" qua nó. Đây là lúc cần cập nhật những kỹ năng mới để tư duy sắc bén hơn, từ đó phối hợp linh hoạt với cộng sự và thích nghi hiệu quả với hoàn cảnh. Khi bạn thay đổi, vật cản sẽ trở thành bậc thang.</div></div>`
+        ];
+
+        const MAZE_ROWS = mazeLayout.length;
+        const MAZE_COLS = mazeLayout[0].length;
+        
+        let scale = Math.min(window.innerWidth * 0.8, window.innerHeight * 0.6);
+        if (window.innerWidth < 640) {
+            scale = window.innerWidth * 0.9;
+        }
+
+        const TILE_SIZE = Math.floor(scale / MAZE_COLS);
+        
+        canvas.width = MAZE_COLS * TILE_SIZE;
+        canvas.height = MAZE_ROWS * TILE_SIZE;
+        
+        const PLAYER_RADIUS = TILE_SIZE * 0.35;
+
+        // --- Game State ---
+        let player = { x: 0, y: 0 };
+        let startPos = { x: 0, y: 0 };
+        let endPos = { x: 0, y: 0, size: TILE_SIZE * 0.8 };
+        let walls = [];
+        let isDragging = false;
+        let gameActive = true;
+        let timerInterval;
+        let timeLeft = 25;
+
+        // --- Initialization ---
+        function initMaze() {
+            walls = [];
+            for (let row = 0; row < MAZE_ROWS; row++) {
+                for (let col = 0; col < MAZE_COLS; col++) {
+                    const tile = mazeLayout[row][col];
+                    if (tile === 1) {
+                        walls.push({ x: col * TILE_SIZE, y: row * TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE });
+                    } else if (tile === 2) {
+                        startPos = { x: col * TILE_SIZE + TILE_SIZE / 2, y: row * TILE_SIZE + TILE_SIZE / 2 };
+                    } else if (tile === 3) {
+                        endPos.x = col * TILE_SIZE;
+                        endPos.y = row * TILE_SIZE;
+                    }
+                }
+            }
+        }
+        
+        function resetGame() {
+            gameActive = true;
+            isDragging = false;
+            player.x = startPos.x;
+            player.y = startPos.y;
+            
+            document.getElementById('winModal').classList.remove('show');
+            document.getElementById('loseModal').classList.remove('show');
+
+            // Reset win modal state
+            setTimeout(() => {
+                 document.getElementById('winMessage').style.display = 'block';
+                 document.getElementById('prizeDisplay').style.display = 'none';
+            }, 300);
+
+            startTimer();
+            draw();
+        }
+
+        // --- Timer ---
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 25;
+            document.getElementById('timer').innerText = timeLeft;
+            timerInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    gameOver(false, "Hết giờ rồi!");
+                }
+            }, 1000);
+        }
+
+        // --- Drawing ---
+        function drawWalls() {
+            ctx.fillStyle = '#F5F5DC'; // Ivory - Màu trắng ngà
+            walls.forEach(wall => {
+                ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+            });
+        }
+
+        function drawPath() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            for (let row = 0; row < MAZE_ROWS; row++) {
+                for (let col = 0; col < MAZE_COLS; col++) {
+                    if (mazeLayout[row][col] !== 1) {
+                        ctx.fillRect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    }
+                }
+            }
+        }
+
+        function drawPlayer() {
+            ctx.save();
+            ctx.translate(player.x, player.y);
+
+            // Shadow
+            ctx.beginPath();
+            ctx.ellipse(0, PLAYER_RADIUS * 1.1, PLAYER_RADIUS, PLAYER_RADIUS * 0.3, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.fill();
+
+            // Body with a slight gradient
+            const bodyGradient = ctx.createRadialGradient(0, -PLAYER_RADIUS * 0.5, 0, 0, 0, PLAYER_RADIUS * 1.2);
+            bodyGradient.addColorStop(0, '#FFFFFF');
+            bodyGradient.addColorStop(1, '#F0F0F0');
+            ctx.fillStyle = bodyGradient;
+            ctx.strokeStyle = '#D0D0D0';
+            ctx.lineWidth = 1.5;
+
+            // Ears first, so body is on top
+            const earHeight = PLAYER_RADIUS * 1.6;
+            const earWidth = PLAYER_RADIUS * 0.5;
+             // Left Ear
+            ctx.save();
+            ctx.rotate(-0.25);
+            ctx.beginPath();
+            ctx.ellipse(-PLAYER_RADIUS * 0.6, -PLAYER_RADIUS * 0.8, earWidth, earHeight, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+            // Right Ear
+            ctx.save();
+            ctx.rotate(0.25);
+            ctx.beginPath();
+            ctx.ellipse(PLAYER_RADIUS * 0.6, -PLAYER_RADIUS * 0.8, earWidth, earHeight, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+
+            // Inner ears
+            ctx.fillStyle = '#FFDDE1';
+             // Left
+            ctx.save();
+            ctx.rotate(-0.25);
+            ctx.beginPath();
+            ctx.ellipse(-PLAYER_RADIUS * 0.6, -PLAYER_RADIUS * 0.8, earWidth * 0.6, earHeight * 0.8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+             // Right
+            ctx.save();
+            ctx.rotate(0.25);
+            ctx.beginPath();
+            ctx.ellipse(PLAYER_RADIUS * 0.6, -PLAYER_RADIUS * 0.8, earWidth * 0.6, earHeight * 0.8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // Body
+            ctx.beginPath();
+            ctx.arc(0, 0, PLAYER_RADIUS, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Eyes (realistic)
+            ctx.fillStyle = '#4A2C2A';
+            ctx.beginPath();
+            ctx.arc(-PLAYER_RADIUS * 0.3, -PLAYER_RADIUS * 0.15, PLAYER_RADIUS * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(PLAYER_RADIUS * 0.3, -PLAYER_RADIUS * 0.15, PLAYER_RADIUS * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eye shine
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(-PLAYER_RADIUS * 0.35, -PLAYER_RADIUS * 0.2, PLAYER_RADIUS * 0.05, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(PLAYER_RADIUS * 0.25, -PLAYER_RADIUS * 0.2, PLAYER_RADIUS * 0.05, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Nose
+            ctx.fillStyle = '#FFC0CB';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-PLAYER_RADIUS * 0.1, PLAYER_RADIUS * 0.1);
+            ctx.lineTo(PLAYER_RADIUS * 0.1, PLAYER_RADIUS * 0.1);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.restore();
+        }
+        
+        function drawEnd() {
+            const centerX = endPos.x + TILE_SIZE / 2;
+            const centerY = endPos.y + TILE_SIZE / 2;
+            const size = endPos.size;
+            
+            ctx.save();
+            ctx.translate(centerX, centerY);
+
+            const outerRadius = size / 2;
+            const innerRadius = outerRadius * 0.85;
+
+            // Shadow
+            ctx.beginPath();
+            ctx.ellipse(0, size * 0.6, size * 0.55, size * 0.15, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fill();
+
+            // Cake body gradient
+            const cakeGradient = ctx.createLinearGradient(0, -outerRadius, 0, outerRadius);
+            cakeGradient.addColorStop(0, '#F0C27B');
+            cakeGradient.addColorStop(0.5, '#D6893A');
+            cakeGradient.addColorStop(1, '#A0522D');
+            ctx.fillStyle = cakeGradient;
+            ctx.strokeStyle = '#6B4226';
+            ctx.lineWidth = 2;
+
+            // Scalloped edges
+            const scallops = 16;
+            ctx.beginPath();
+            for (let i = 0; i <= scallops; i++) {
+                const angle = (i / scallops) * Math.PI * 2;
+                const nextAngle = ((i + 1) / scallops) * Math.PI * 2;
+                const x = Math.cos(angle) * outerRadius;
+                const y = Math.sin(angle) * outerRadius;
+                const cp1x = Math.cos(angle + (nextAngle-angle)/2) * (outerRadius * 1.05);
+                const cp1y = Math.sin(angle + (nextAngle-angle)/2) * (outerRadius * 1.05);
+                const x2 = Math.cos(nextAngle) * outerRadius;
+                const y2 = Math.sin(nextAngle) * outerRadius;
+
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.quadraticCurveTo(cp1x, cp1y, x2, y2);
+            }
+            ctx.fill();
+            ctx.stroke();
+
+            // Top surface
+            ctx.fillStyle = '#F0C27B';
+            ctx.beginPath();
+            ctx.arc(0, 0, innerRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Center pattern text "中秋" (Mid-Autumn)
+            ctx.fillStyle = '#A0522D';
+            ctx.font = `bold ${size * 0.3}px 'Quicksand', sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('中秋', 0, 0);
+
+            ctx.restore();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPath();
+            drawWalls();
+            drawEnd();
+            drawPlayer();
+        }
+
+        // --- Game Logic ---
+        function checkCollision() {
+            const collisionRadius = PLAYER_RADIUS * 0.8; 
+            for (let wall of walls) {
+                if (player.x + collisionRadius > wall.x &&
+                    player.x - collisionRadius < wall.x + wall.width &&
+                    player.y + collisionRadius > wall.y &&
+                    player.y - collisionRadius < wall.y + wall.height) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function checkWin() {
+            const dist = Math.hypot(player.x - (endPos.x + TILE_SIZE / 2), player.y - (endPos.y + TILE_SIZE / 2));
+            if (dist < PLAYER_RADIUS + endPos.size / 2) {
+                 gameOver(true);
+            }
+        }
+        
+        function gameOver(isWin, message = "") {
+            if (!gameActive) return; 
+            gameActive = false;
+            isDragging = false; 
+            clearInterval(timerInterval);
+            
+            if (isWin) {
+                const randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+                document.getElementById('fortuneText').innerHTML = randomFortune;
+                document.getElementById('winModal').classList.add('show');
+            } else {
+                document.getElementById('loseMessageText').innerText = message || "Thua rồi!";
+                document.getElementById('loseModal').classList.add('show');
+            }
+        }
+
+        // --- Event Handlers ---
+        function handleMove(clientX, clientY) {
+            if (!isDragging || !gameActive) return;
+
+            const rect = canvas.getBoundingClientRect();
+            player.x = clientX - rect.left;
+            player.y = clientY - rect.top;
+
+            if (checkCollision()) {
+                // Khi va vào tường, quay lại điểm xuất phát và ngừng di chuyển
+                player.x = startPos.x;
+                player.y = startPos.y;
+                isDragging = false;
+                draw();
+                return;
+            }
+
+            checkWin();
+            draw();
+        }
+
+        canvas.addEventListener('mousedown', (e) => { 
+            if (!gameActive) return;
+            isDragging = true; 
+            handleMove(e.clientX, e.clientY); 
+        });
+        canvas.addEventListener('mouseup', () => { isDragging = false; });
+        canvas.addEventListener('mouseleave', () => { isDragging = false; });
+        canvas.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+        
+        canvas.addEventListener('touchstart', (e) => { 
+            if (!gameActive) return;
+            e.preventDefault(); 
+            isDragging = true; 
+            handleMove(e.touches[0].clientX, e.touches[0].clientY); 
+        }, { passive: false });
+        canvas.addEventListener('touchend', (e) => { e.preventDefault(); isDragging = false; });
+        canvas.addEventListener('touchcancel', (e) => { e.preventDefault(); isDragging = false; });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+
+
+        document.getElementById('giftBox').addEventListener('click', () => {
+             const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
+            document.getElementById('prizeText').innerHTML = randomPrize;
+            document.getElementById('winMessage').style.display = 'none';
+            document.getElementById('prizeDisplay').style.display = 'block';
+        });
+        
+        document.getElementById('playAgainBtn').addEventListener('click', resetGame);
+        document.getElementById('playAgainBtnLose').addEventListener('click', resetGame);
+        
+        // --- Light Effect ---
+        function createLights() {
+            const container = document.querySelector('.lights-container');
+            if (!container) return;
+            container.innerHTML = '';
+            for(let i = 0; i < 20; i++) {
+                const light = document.createElement('div');
+                light.className = 'light';
+                light.style.left = `${Math.random() * 100}%`;
+                light.style.animationDelay = `${Math.random() * 10}s`;
+                light.style.animationDuration = `${5 + Math.random() * 5}s`;
+                light.style.width = `${2 + Math.random() * 3}px`;
+                light.style.height = light.style.width;
+                container.appendChild(light);
+            }
+        }
+
+        // --- Game Start ---
+        window.onload = () => {
+            initMaze();
+            resetGame();
+            createLights();
+        };
+
+        window.onresize = () => {
+             location.reload();
+        };
+    </script>
+</body>
+</html>
