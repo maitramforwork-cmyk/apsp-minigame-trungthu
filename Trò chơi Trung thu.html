@@ -433,7 +433,7 @@
             [1,0,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1],
             [1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,1,0,1],
             [1,1,1,0,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1],
-            [1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1], /* Sửa lỗi bít đường tại đây */
             [1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,0,1],
             [1,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,1],
             [1,0,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1],
@@ -529,6 +529,7 @@
                 document.getElementById('prizeDisplay').style.display = 'block';
             });
             
+            document.getElementById('playAgainBtn').addEventListener('click', resetGame);
             document.getElementById('playAgainBtnLose').addEventListener('click', resetGame);
             
             resetGame();
@@ -869,4 +870,5 @@
     </script>
 </body>
 </html>
+
 
